@@ -1,14 +1,33 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+        
     <router-view/>
   </div>
 </template>
 
+<script>
+  export default {
+    data() {
+        return{
+            afficheNav : true,
+        }
+    },
+    updated(){
+      console.log("updated")
+    }
+  }
+</script>
+
 <style lang="scss">
+
+
+@import './assets/scss/custom.scss';
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+.custom-file-input:lang(en) ~ .custom-file-label::after {
+  content: 'Photo';
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
