@@ -26,10 +26,10 @@
                         </b-form-input>
                     </b-col>
                     <b-col>
-                        <b-form-input 
+                        <b-form-select 
                         v-model="el.nature" 
-                        placeholder="Nature de l'élement">
-                        </b-form-input>
+                        :options="NaturePossibles">
+                        </b-form-select>
                     </b-col>
                     <b-col>
                         <b-form-select
@@ -168,6 +168,26 @@ export default {
                 { value: 'EU', text: 'Etat d\'usage'},
                 { value: 'BE', text: 'Bon état'},
             ],
+            NaturePossibles: [
+                { value: '', text: 'Nature', disabled : true },
+                { value: 'Bois', text: 'Bois' },
+                { value: 'Aluminium', text: 'Aluminium' },
+                { value: 'PVC', text: 'PVC'},
+                { value: 'Verre', text: 'Verre'},
+                { value: 'Composite', text: 'Composite'},
+                { value: 'Parquet', text: 'Parquet'},
+                { value: 'Stratifie', text: 'Stratifié'},
+                { value: 'Carrelage', text: 'Carrelage'},
+                { value: 'Linoleum', text: 'Linoléum'},
+                { value: 'Beton-cire', text: 'Béton ciré'},
+                { value: 'Jonc-de-mer', text: 'Jonc de mer'},
+                { value: 'Peinture', text: 'Peinture'},
+                { value: 'Papier-peint', text: 'Papier peint'},
+                { value: 'Crepi', text: 'Crépi'},
+                { value: 'Lambri', text: 'Lambri'},
+                { value: 'Toile-de-verre', text: 'Toile de verre'},
+                { value: 'Tissu-mural', text: 'Tissu mural'},
+            ],
       }
     },
     methods:{
@@ -273,11 +293,16 @@ export default {
         var p = {
             id : this.etat.Pieces[i].id,
             nom : this.etat.Pieces[i].nom,
-            elDeco : [],
+            elDeco : [
+                {id: 0, nom: "Porte", nature: "", etat: ""},
+                {id: 1, nom: "Murs", nature: "", etat: ""},
+                {id: 2, nom: "Sols", nature: "", etat: ""}    
+            ],
             elEquip : [],
             elElec : [],
 
         }
+       
         this.pieces.push(p)
     }   
 console.log(this.etat.Pieces)
