@@ -18,7 +18,8 @@
                         <b-button v-if="pieces[n].elDeco.length > 0" size="sm" variant="outline-guerb" @click="popElement(1,n)">Supprimer le dernier</b-button>
                     </b-col>
                 </b-row>
-                 <b-row class="rowInner" v-for="(el) in pieces[n].elDeco" :key="el.id">
+                <div class="rowInner" style="margin-bottom : 1rem;" v-for="(el) in pieces[n].elDeco" :key="el.id">
+                 <b-row style="margin-bottom : 0.5rem;">
                    <b-col>
                         <b-form-input 
                         v-model="el.nom" 
@@ -45,13 +46,22 @@
                        size="sm"
                        placeholder="Ajouter photo(s)"></b-form-file> 
                     </b-col>
-                    <b-col>
+                    
+                 </b-row>
+                 <b-row>
+                      <b-col md ="9">
                         <b-form-input 
                         v-model="el.commentaires" 
-                        placeholder="commentaires de l'élement">
+                        placeholder="commentaires à propos l'élement">
                         </b-form-input>
                     </b-col>
+                    <b-col >
+                        <b-button variant="danger" @click="supprimerElt(el,piece)">
+                            Supprimer
+                        </b-button>
+                    </b-col>
                  </b-row>
+                </div>
                 <b-row class="sousPartie2">
                     <b-col>
                         <h4 >Electrique</h4>
@@ -63,7 +73,10 @@
                         <b-button v-if="pieces[n].elElec.length > 0" size="sm" variant="outline-guerb" @click="popElement(2,n)">Supprimer le dernier</b-button>
                     </b-col>
                 </b-row>
-                 <b-row class="rowInner" v-for="(el) in pieces[n].elElec" :key="el.id">
+                <div class="rowInner" style="margin-bottom : 1rem;" v-for="(el) in pieces[n].elElec" :key="el.id">
+
+                
+                 <b-row style="margin-bottom : 0.5rem;">
                    <b-col>
                         <b-form-input 
                         v-model="el.nom" 
@@ -90,14 +103,22 @@
                        size="sm"
                        placeholder="Ajouter photo(s)"></b-form-file> 
                     </b-col>
-                    <b-col>
+                                    
+                </b-row>
+                <b-row>
+                      <b-col md ="9">
                         <b-form-input 
                         v-model="el.commentaires" 
-                        placeholder="commentaires de l'élement">
+                        placeholder="commentaires à propos l'élement">
                         </b-form-input>
                     </b-col>
-                
-                </b-row>
+                    <b-col >
+                        <b-button variant="danger" @click="supprimerElt(el,piece)">
+                            Supprimer
+                        </b-button>
+                    </b-col>
+                 </b-row>
+                 </div>
                 <b-row class="sousPartie2">
                     <b-col>
                         <h4 >Equipment</h4>
@@ -109,7 +130,8 @@
                         <b-button v-if="pieces[n].elEquip.length > 0" size="sm" variant="outline-guerb" @click="popElement(3,n)">Supprimer le dernier</b-button>
                     </b-col>
                 </b-row>
-                 <b-row class="rowInner" v-for="(el) in pieces[n].elEquip" :key="el.id">
+                <div class="rowInner" style="margin-bottom : 1rem;" v-for="(el) in pieces[n].elEquip" :key="el.id">
+                 <b-row style="margin-bottom : 0.5rem;">
                    <b-col>
                         <b-form-input 
                         v-model="el.nom" 
@@ -136,14 +158,23 @@
                        size="sm"
                        placeholder="Ajouter photo(s)"></b-form-file> 
                     </b-col>
-                    <b-col>
-                       <b-form-input 
+                    
+                </b-row>
+                <b-row>
+                      <b-col md ="9">
+                        <b-form-input 
                         v-model="el.commentaires" 
-                        placeholder="commentaires de l'élement">
+                        placeholder="commentaires à propos l'élement">
                         </b-form-input>
                     </b-col>
-
-                </b-row>
+                    <b-col >
+                        <b-button variant="danger" @click="supprimerElt(el,piece)">
+                            Supprimer
+                        </b-button>
+                    </b-col>
+                 </b-row>
+                 
+                </div>
             </b-container>
             
         </b-form>
@@ -195,11 +226,37 @@ export default {
             //this.etat.Photos.push(files[0].name);
             return files.length === 1 ? files[0].name : `${files.length} fichiers sélectionnés`
         },
+        supprimerElt(elementASupprimer,piece){
+            console.log(this.pieces);
+            this.pieces.forEach(p => {
+                if (p.nom == piece.nom){
+                    p.elDeco.forEach((el,index) =>{
+                        if(el.id == elementASupprimer.id){
+                            p.elDeco.splice(index,1);
+                        }
+                    })
+                    p.elEquip.forEach((el,index) =>{
+                        if(el.id == elementASupprimer.id){
+                            p.elEquip.splice(index,1);
+                        }
+                    })
+                    p.elElec.forEach((el,index) =>{
+                        if(el.id == elementASupprimer.id){
+                            p.elElec.splice(index,1);
+                        }
+                    })
+                }
+            });
+
+        },
+        ID(){
+            return '_' + Math.random().toString(36).substr(2, 9);
+        },
         onSubmit(){
             var compteur = 1;
-            this.pieces.forEach(piece => {
-                piece.elDeco.forEach(el => {
-                   el.photos.forEach(photo => {
+            if(this.pieces){this.pieces.forEach(piece => {
+                if(piece.elDeco){piece.elDeco.forEach(el => {
+                   if(el.photos){el.photos.forEach(photo => {
                     var p = {
                         label : compteur,
                         nom : photo.name
@@ -207,10 +264,10 @@ export default {
                     photo.label = compteur;
                     compteur+=1;
                     this.etat.Photos.push(p);
-                   })
-                })
-                piece.elElec.forEach(el => {
-                   el.photos.forEach(photo => {
+                   })}
+                })}
+                  if(piece.elElec){piece.elElec.forEach(el => {
+                     if(el.photos){el.photos.forEach(photo => {
                       var p = {
                         label : compteur,
                         nom : photo.name
@@ -218,10 +275,10 @@ export default {
                     photo.label = compteur;
                     compteur+=1;
                     this.etat.Photos.push(p);
-                   })
-                })
-                piece.elEquip.forEach(el => {
-                   el.photos.forEach(photo => {
+                   })}
+                })}
+                if(piece.elEquip){piece.elEquip.forEach(el => {
+                  if(el.photos){ el.photos.forEach(photo => {
                        var p = {
                         label : compteur,
                         nom : photo.name
@@ -229,9 +286,9 @@ export default {
                     photo.label = compteur;
                     compteur+=1;
                     this.etat.Photos.push(p);
-                   })
-                })
-            });
+                   })}
+                })}
+            })}
            
              if (localStorage.getItem('etats')) {
                 try {
@@ -294,15 +351,237 @@ export default {
             id : this.etat.Pieces[i].id,
             nom : this.etat.Pieces[i].nom,
             elDeco : [
-                {id: 0, nom: "Porte", nature: "", etat: ""},
-                {id: 1, nom: "Murs", nature: "", etat: ""},
-                {id: 2, nom: "Sols", nature: "", etat: ""}    
+                {id: this.ID(), nom: "Porte", nature: "", etat: ""},
+                {id: this.ID(), nom: "Murs", nature: "", etat: ""},
+                {id: this.ID(), nom: "Sols", nature: "", etat: ""}    
             ],
             elEquip : [],
             elElec : [],
 
         }
-       
+        if (p.nom.includes("Salon")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Placards",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Armoire",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Thermostat",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Cheminée",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Rideaux",
+                nature :"",
+                etat : ""
+            });
+
+        }
+        if (p.nom.includes("Chambre")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Placards",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Armoire",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Miroir",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Cheminée",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Rideaux",
+                nature :"",
+                etat : ""
+            });
+
+        }
+         if (p.nom.includes("bain")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Baignoire",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Douche",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Miroir",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Tablette",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Armoire",
+                nature :"",
+                etat : ""
+            });
+             p.elEquip.push({
+                id : this.ID(),
+                nom: "Meuble-lavabo",
+                nature :"",
+                etat : ""
+            });
+             p.elEquip.push({
+                id : this.ID(),
+                nom: "Joints",
+                nature :"",
+                etat : ""
+            });
+
+        }
+
+        if (p.nom.includes("WC")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Chasse d'eau",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id :this.ID(),
+                nom: "Réservoir",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Cuvette",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Abattant",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Brosse",
+                nature :"",
+                etat : ""
+            })
+
+        }
+        if (p.nom.includes("Cuisine")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Meuble haut",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Meuble bas",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Evier",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Four",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Lave-vaisselle",
+                nature :"",
+                etat : ""
+            });
+             p.elEquip.push({
+                id : this.ID(),
+                nom: "Hotte",
+                nature :"",
+                etat : ""
+            });
+             p.elEquip.push({
+                id : this.ID(),
+                nom: "Plaque de cuisson",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Robinetterie",
+                nature :"",
+                etat : ""
+            });
+             p.elEquip.push({
+                id : this.ID(),
+                nom: "Joints",
+                nature :"",
+                etat : ""
+            });
+
+        }
+        if (p.nom.includes("Entr")) {
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Interphone",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Visiophone",
+                nature :"",
+                etat : ""
+            });
+            p.elEquip.push({
+                id : this.ID(),
+                nom: "Détecteur de fumée",
+                nature :"",
+                etat : ""
+            });
+           
+        }
         this.pieces.push(p)
     }   
 console.log(this.etat.Pieces)
