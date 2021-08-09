@@ -1,7 +1,7 @@
 <template>
   <div id ="root">
-    <h5 v-if="etat.selected == 'entre'">Date d'entrée : {{this.etat.date.split(',')[0]}}</h5>
-    <h5 v-else >Date de sortie : {{this.etat.date.split(',')[0]}}</h5>
+    <h5 v-if="etat.selected == 'entre'">Date d'entrée : {{etat.date.split(',')[0]}}</h5>
+    <h5 v-else >Date de sortie : {{etat.date.split(',')[0]}}</h5>
     <h1 v-if="etat.selected == 'entre'">Etat des Lieux d'entrée</h1>
     <h1 v-else>Etat des Lieux de sortie</h1>
     <h4>Dressé en commun et contradictoirement entre les soussignés</h4>
@@ -111,7 +111,7 @@
         </b-col>
         <b-col class="casePiece"><span v-for="(p,i) in el.photos" :key="p.id"> 
           <span v-if="i != 0">, </span> 
-          Image {{p.label}} </span> 
+          Image {{getIndex(p) +1 }} </span> 
         </b-col>
         <b-col class="casePiece">{{el.commentaires}}</b-col>
       </b-row>
@@ -135,7 +135,7 @@
         </b-col>
        <b-col class="casePiece"><span v-for="(p,i) in el.photos" :key="p.id"> 
           <span v-if="i != 0">, </span> 
-          Image {{p.label}} </span> 
+          Image {{getIndex(p) +1}} </span> 
         </b-col>
         <b-col class="casePiece">{{el.commentaires}}</b-col>
       </b-row>
@@ -159,7 +159,7 @@
         </b-col>
         <b-col class="casePiece"> <span v-for="(p,i) in el.photos" :key="p.id"> 
           <span v-if="i != 0">, </span> 
-          Image {{p.label}} </span> 
+          Image {{getIndex(p) +1}} </span> 
         </b-col>
         <b-col class="casePiece">{{el.commentaires}}</b-col>
       </b-row>
@@ -232,17 +232,44 @@ parties qui le reconnaissent exact, fait partie intégrante du contrat de locati
       </p>
     <div class="faita">Fait à METZ le {{ etat.date.split(',')[0] }}</div>
     <b-row>
-      <b-col class="signBas">
-        <div class="signBas2"></div>
- Signature du Propriétaire ou de son mandataire
+      <b-col   v-if="!imgSignatureProprio" class="signBas">
+        Signature du Propriétaire : 
+       <VueSignaturePad
+          id="signature"
+          v-if="!imgSignatureProprio"
+          width="100%"
+          height="200px"
+          ref="signaturePad"  
+        />
+        
+        <b-button  v-if="!imgSignatureProprio" @click="saveProprio">Sauvegarger</b-button>    
+        <b-button  v-if="!imgSignatureProprio" @click="redoProprio">Recommencer</b-button>
         
        
+
       </b-col>
-      <b-col class="signBas">
-        <div class="signBas2"></div>
- Signature du ou des Locataires
+      <b-col v-if="imgSignatureProprio" class="signBas">
+         <img v-if="imgSignatureProprio" :src="imgSignatureProprio" alt="">
+        <span  v-if="imgSignatureProprio"> Signature du Propriétaire ou de son mandataire</span>
+      </b-col>
+      <b-col  v-if="!imgSignatureLoc" class="signBas">
+        Signature du Locataire : 
+       <VueSignaturePad
+          id="signature"
+          v-if="!imgSignatureLoc"
+          width="100%"
+          height="200px"
+          ref="signaturePad2"  
+        />
+        <b-button  v-if="!imgSignatureLoc" @click="saveLoc">Sauvegarger</b-button>    
+        <b-button  v-if="!imgSignatureLoc" @click="redoLoc">Recommencer</b-button>
         
        
+
+      </b-col>
+      <b-col v-if="imgSignatureLoc" class="signBas">
+        <img v-if="imgSignatureLoc" :src="imgSignatureLoc" alt="">
+        <span  v-if="imgSignatureLoc"> Signature du ou des locataires</span>
       </b-col>
       
     </b-row>
@@ -254,8 +281,8 @@ parties qui le reconnaissent exact, fait partie intégrante du contrat de locati
            <!-- <img class="image50" :src="getImgUrl(photo)" v-bin:alt="photo">
             <span>{{photo}}</span>  -->
             <b-card
-              v-for="(photo) in etat.Photos" :key="photo.id"
-              :img-src="getImgUrl(photo)"
+              v-for="(photo, i) in photos" :key="photo.id"
+              :img-src="photo.webviewPath"
               img-alt="Image"
               img-top
               tag="article"
@@ -263,21 +290,35 @@ parties qui le reconnaissent exact, fait partie intégrante du contrat de locati
               class="mb-4 ml-4 mr-4"
             >
               <b-card-text>
-                Image {{photo.label}}
+                Image {{i+1}}
               </b-card-text>
 
              
             </b-card>
      </div>
+     <b-row class="no-print">
+       <b-col>
+         <b-button  @click="imprimer">
+           Imprimer
+         </b-button>
+       </b-col>
+     </b-row>
   </div>
 </template>
 
 <script>
+import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Storage } from '@capacitor/storage'
+
+const PHOTO_STORAGE = "photos";
 export default {
   data(){
     return{
       component : "AddForm",
-      etat : []
+      etat : [],
+      photos : [],
+      imgSignatureProprio : null,
+      imgSignatureLoc : null,
     }
     
   },
@@ -291,19 +332,77 @@ export default {
                 console.log('error');
             }
         }
+        this.loadSaved();
   },
   methods:{
     getImgUrl(photo) {
     //var images = require.context('../assets/', false, /\.png$/)
     return require('../assets/photos/' + photo.nom);
     
-  }
+  },
+  getIndex(p){
+    let index = "error";
+    this.etat.Photos.forEach((photo,i) =>{
+      console.log(p + " = " + photo)
+      if(photo == p){
+        console.log(i)
+        index =  i;
+      }
+    })
+    return index
+  },
+  imprimer(){
+    window.print()
+  },
+  saveProprio() { 
+    const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
+      if(!isEmpty){
+        this.imgSignatureProprio = data;
+      }
+    },
+  redoProprio(){
+    this.$refs.signaturePad.clearSignature();
+  },
+  saveLoc() { 
+    const { isEmpty, data } = this.$refs.signaturePad2.saveSignature();
+      if(!isEmpty){
+        this.imgSignatureLoc = data;
+      }
+    },
+  redoLoc(){
+    this.$refs.signaturePad2.clearSignature();
+  },
+   async loadSaved (){
+                const photoList = await Storage.get({ key: PHOTO_STORAGE });
+                const photosInStorage = [];
+                JSON.parse(photoList.value).forEach(element => {
+                  if (this.etat.Photos.includes(element.filepath)){
+                    photosInStorage.push(element)
+                  }
+                });
+                console.log(photosInStorage)
+                for (const photo of photosInStorage) {
+                    const file = await Filesystem.readFile({
+                        path: photo.filepath,
+                        directory: Directory.Data
+                    });
+                    photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+                    
+                }
+
+                this.photos = photosInStorage;
+             }  
   }
 }
 </script>
 <style lang="scss">
 @media print {
-    .pagebreak { page-break-before: always; } /* page-break-after works, as well */
+    .pagebreak { page-break-before: always; } 
+    
+    .no-print, .no-print *
+    {
+      display: none !important;
+    }/* page-break-after works, as well */
 }
 p{
   text-align: left;

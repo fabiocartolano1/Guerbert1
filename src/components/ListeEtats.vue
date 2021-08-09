@@ -29,12 +29,9 @@
       <template #cell(show_d)="row">
        
         <span  class="btnEtat" @click="voir(row.index)">📖</span>
-        <span class="btnEtat" >🖨</span>
-        <span class="btnEtat" >✏️</span>
         <span class="btnEtat" @click="supprimer(row.index)">❌</span>
-       
-       
-       
+        <b-button variant="outline-guerb" @click="retour(row.index)">Éditer retour</b-button>
+    
       </template>
     </b-table>
     
@@ -125,8 +122,8 @@ a {
 }
 
 .btnEtat{
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
   cursor: pointer;
 }
 </style>
