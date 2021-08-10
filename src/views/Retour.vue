@@ -100,23 +100,40 @@
         <b-col class="casePiece">Photo</b-col>
         <b-col class="casePiece">Commentaires</b-col>
       </b-row>
-      <b-row v-for="(el) in piece.elDeco" :key="el.id">
-        <b-col class="casePiece">{{el.nom}}</b-col>
-        <b-col class="casePiece">{{el.nature}}</b-col>
-        <b-col class="casePiece">
-          <span v-if="el.etat == 'HS'">Hors-Service</span>
-          <span v-if="el.etat == 'D'">Dégradé</span>
-          <span v-if="el.etat == 'ME'">Mauvais état</span>
-          <span v-if="el.etat == 'EU'">Etat d'usage</span>
-          <span v-if="el.etat == 'BE'">Bon état</span>
-        </b-col>
-        <b-col class="casePiece"><span v-for="(p,i) in el.photos" :key="p.id"> 
-          <span v-if="i != 0">, </span> 
-          Image {{getIndex(p) +1 }} </span> 
-        </b-col>
-        <b-col class="casePiece">{{el.commentaires}}</b-col>
-      </b-row>
-
+      <div v-for="(el) in piece.elDeco" :key="el.id">    
+        <b-row >
+          <b-col class="casePiece">{{el.nom}}</b-col>
+          <b-col class="casePiece">{{el.nature}}</b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etat == 'HS'">Hors-Service</span>
+            <span v-if="el.etat == 'D'">Dégradé</span>
+            <span v-if="el.etat == 'ME'">Mauvais état</span>
+            <span v-if="el.etat == 'EU'">Etat d'usage</span>
+            <span v-if="el.etat == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece"><span v-for="(p,i) in el.photos" :key="p.id"> 
+            <span v-if="i != 0">, </span> 
+            Image {{getIndex(p) +1 }} </span> 
+          </b-col>
+          <b-col class="casePiece">{{el.commentaires}}</b-col>
+        </b-row>
+        <b-row>
+          <b-col class="casePieceRetour"></b-col>
+          <b-col class="casePieceRetour">Sortie : </b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etat == 'HS'">Hors-Service</span>
+            <span v-if="el.etat == 'D'">Dégradé</span>
+            <span v-if="el.etat == 'ME'">Mauvais état</span>
+            <span v-if="el.etat == 'EU'">Etat d'usage</span>
+            <span v-if="el.etat == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece"><span v-for="(p,i) in el.photos" :key="p.id"> 
+            <span v-if="i != 0">, </span> 
+            Image {{getIndex(p) +1 }} </span> 
+          </b-col>
+          <b-col class="casePiece">{{el.commentaires}}</b-col>
+        </b-row>
+      </div>
       <b-row class="ele">
         <b-col class="casePiece">Electrique</b-col>
         <b-col class="casePiece">Nature</b-col>
@@ -333,8 +350,25 @@ export default {
             } catch(e) {
                 console.log('error');
             }
-        }
-        this.loadSaved();
+    }
+    this.loadSaved();
+    this.etat.Pieces.forEach(p => {
+      p.elDeco.forEach(e => {
+        e.etatSortie = "";
+        e.photosSortie ="";
+        e.commentaireSortie = "";
+      })
+      p.elElec.forEach(e => {
+        e.etatSortie = "";
+        e.photosSortie ="";
+        e.commentaireSortie = "";
+      })
+      p.elEquip.forEach(e => {
+        e.etatSortie = "";
+        e.photosSortie ="";
+        e.commentaireSortie = "";
+      })
+    })
   },
   methods:{
     getImgUrl(photo) {
@@ -355,46 +389,6 @@ export default {
   },
   imprimer(){
     window.print()
-  },
-  saveProprio() { 
-    const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
-      if(!isEmpty){
-        this.savedProprio = true;
-        this.$refs.signaturePad.lockSignaturePad();
-        this.etat.imgSignatureProprio = data;
-        this.etats.forEach((e,index) => {
-          if (index == this.$route.params.id){
-            this.etats[index] = this.etat;
-            console.log(e);
-            const parsedEtats = JSON.stringify(this.etats);
-            localStorage.setItem('etats', parsedEtats);
-          }
-        })
-      }
-    },
-  redoProprio(){
-    this.$refs.signaturePad.clearSignature();
-  },
-  saveLoc() { 
-    const { isEmpty, data } = this.$refs.signaturePad2.saveSignature();
-      if(!isEmpty){
-        
-        this.savedLoc = true;
-        this.$refs.signaturePad2.lockSignaturePad();
-        this.etat.imgSignatureLoc = data;
-        console.log("oui")
-         this.etats.forEach((e,index) => {
-          if (index == this.$route.params.id){
-            this.etats[index] = this.etat;
-            console.log(e);
-            const parsedEtats = JSON.stringify(this.etats);
-            localStorage.setItem('etats', parsedEtats);
-          }
-        })
-      }
-    },
-  redoLoc(){
-    this.$refs.signaturePad2.clearSignature();
   },
    async loadSaved (){
                 const photoList = await Storage.get({ key: PHOTO_STORAGE });
@@ -505,6 +499,11 @@ h4 {
   padding: 10px 0px 10px 10px;
   margin-top : -1px;
   margin-right: -1px;
+}
+.casePieceRetour{
+  padding: 10px 0px 10px 10px;
+  margin-top : -1px;
+  margin-right: 1px;
 }
 .case{
   text-align : left;

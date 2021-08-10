@@ -52,6 +52,9 @@ export default {
     voir(x){
       this.$router.push("etat/"+x);
     },
+    retour(x){
+      this.$router.push("retour/"+x);
+    },
     saveItems(){
       const parsed = JSON.stringify(this.etats);
       localStorage.setItem('etats', parsed);
