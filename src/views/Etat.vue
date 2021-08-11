@@ -297,7 +297,7 @@
           >
         </b-col>
       </b-row>
-      <b-row>
+      <b-row >
         <b-col v-if="etat.imgSignatureProprioSortie" class="signBas">
           <img
             v-if="etat.imgSignatureProprioSortie"
@@ -353,18 +353,31 @@
     </div>
     <b-row class="no-print">
       <b-col>
-        <b-button @click="imprimer"> Imprimer </b-button>
+        <b-button @click="sharePhoto"> photo </b-button>
       </b-col>
     </b-row>
+    <form id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
+      <input type="submit" value="Send" />
+    </form>
   </div>
 </template>
 
 <script>
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Storage } from "@capacitor/storage";
-//import html2pdf from "html2pdf.js"
-import { Share } from '@capacitor/share';
-
+import html2pdf from "html2pdf.js"
+import shareTest from "@capacitor/share"
+import {
+    Plugins,
+    registerWebPlugin
+} from "@capacitor/core";
+import {
+    FileSharer
+} from '@byteowls/capacitor-filesharer';
+const {
+    Share
+} = Plugins;
+registerWebPlugin(FileSharer);
 const PHOTO_STORAGE = "photos";
 export default {
   data() {
@@ -378,19 +391,20 @@ export default {
       sortie: false,
     };
   },
-  computed : {
-    photosEntree : function (){
-      return this.photos.filter((photo) =>{
-        return this.etat.Photos.includes(photo.filepath)
-      })
+  computed: {
+    photosEntree: function () {
+      return this.photos.filter((photo) => {
+        return this.etat.Photos.includes(photo.filepath);
+      });
     },
-    photosSortie : function (){
-      return this.photos.filter((photo) =>{
-        return this.etat.PhotosSortie.includes(photo.filepath)
-      })
-    }
+    photosSortie: function () {
+      return this.photos.filter((photo) => {
+        return this.etat.PhotosSortie.includes(photo.filepath);
+      });
+    },
   },
   mounted() {
+    console.log(Share);
     if (localStorage.getItem("etats")) {
       try {
         this.etats = JSON.parse(localStorage.getItem("etats"));
@@ -433,36 +447,25 @@ export default {
       });
       return index;
     },
-    async imprimer() {
-      //var worker = html2pdf().from(document.getElementById('root')).toPdf();
-      /*console.log(worker);
-      console.log(Share);
-    */
-    const fileName = 'timesheet.pdf';
-        
-          Filesystem.writeFile({
-            path: fileName,
-            data: this.etat.imgSignatureLoc,
-            directory: Directory.Documents
-            // encoding: FilesystemEncoding.UTF8
-          }).then((writeFileResult) => {
-            console.log(writeFileResult)
-            Filesystem.getUri({
-                directory: Directory.Documents,
-                path: fileName
-            }).then((getUriResult) => {
-                const path = getUriResult.uri;
-                Share.share({
-                  title: 'See cool stuff',
-                  text: 'Really awesome thing you need to see right meow',
-                  url: path,
-                  dialogTitle: 'Share with buddies',
-                });
-            }, (error) => {
-                console.log(error);
-            });
-          })
-          
+    async sharePhoto(){
+      html2pdf().from(document.getElementById('root')).toPdf().output('datauristring').then(function (pdfAsString) {
+        const base64Data = pdfAsString.split(',')[1];
+        FileSharer.share({
+          filename : 'test.pdf',
+          base64Data,
+          contentType : 'application/pdf'
+        })
+      })
+    },
+    sendEmail() {
+      html2pdf().from(document.getElementById('root')).toPdf().output('datauristring').then(function (pdfAsString) {
+         shareTest.share({
+            title: 'See cool stuff',
+            url: pdfAsString,
+          });
+      })
+           
+      
     },
     saveProprio() {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
@@ -507,7 +510,10 @@ export default {
       const photoList = await Storage.get({ key: PHOTO_STORAGE });
       const photosInStorage = [];
       JSON.parse(photoList.value).forEach((element) => {
-        if (this.etat.Photos.includes(element.filepath) ||this.etat.PhotosSortie.includes(element.filepath) ) {
+        if (
+          this.etat.Photos.includes(element.filepath) ||
+          this.etat.PhotosSortie.includes(element.filepath)
+        ) {
           photosInStorage.push(element);
         }
       });
