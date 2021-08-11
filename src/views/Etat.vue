@@ -362,9 +362,8 @@
 <script>
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Storage } from "@capacitor/storage";
-import html2canvas from "html2canvas";
-import jsPDF from 'jspdf'
-
+//import html2pdf from "html2pdf.js"
+import { Share } from '@capacitor/share';
 
 const PHOTO_STORAGE = "photos";
 export default {
@@ -434,29 +433,36 @@ export default {
       });
       return index;
     },
-    imprimer() {
-      html2canvas(document.querySelector('#root')).then(canvas =>{
-        var imgData = canvas.toDataURL('image/png');
-        var imgWidth = 210; 
-        var pageHeight = 295;  
-        var imgHeight = canvas.height * imgWidth / canvas.width;
-        var heightLeft = imgHeight;
-        var doc = new jsPDF('p', 'mm');
-        var position = 0;
-
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          doc.addPage();
-          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-        doc.save( 'file.pdf');
-      })
-      //pdfMake.createPdf(window).download();
-      //console.log(window)
+    async imprimer() {
+      //var worker = html2pdf().from(document.getElementById('root')).toPdf();
+      /*console.log(worker);
+      console.log(Share);
+    */
+    const fileName = 'timesheet.pdf';
+        
+          Filesystem.writeFile({
+            path: fileName,
+            data: this.etat.imgSignatureLoc,
+            directory: Directory.Documents
+            // encoding: FilesystemEncoding.UTF8
+          }).then((writeFileResult) => {
+            console.log(writeFileResult)
+            Filesystem.getUri({
+                directory: Directory.Documents,
+                path: fileName
+            }).then((getUriResult) => {
+                const path = getUriResult.uri;
+                Share.share({
+                  title: 'See cool stuff',
+                  text: 'Really awesome thing you need to see right meow',
+                  url: path,
+                  dialogTitle: 'Share with buddies',
+                });
+            }, (error) => {
+                console.log(error);
+            });
+          })
+          
     },
     saveProprio() {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
