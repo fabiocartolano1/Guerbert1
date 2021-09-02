@@ -352,9 +352,7 @@
       </b-card>
     </div>
     <b-row class="no-print">
-      <b-col>
-        <b-button @click="sharePhoto"> photo </b-button>
-      </b-col>
+      
     </b-row>
     <form id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
       <input type="submit" value="Send" />
@@ -365,23 +363,24 @@
 <script>
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Storage } from "@capacitor/storage";
+import { Share } from '@capacitor/share';
+//import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import html2pdf from "html2pdf.js"
-import shareTest from "@capacitor/share"
+
+
 import {
-    Plugins,
     registerWebPlugin
 } from "@capacitor/core";
 import {
     FileSharer
 } from '@byteowls/capacitor-filesharer';
-const {
-    Share
-} = Plugins;
+
 registerWebPlugin(FileSharer);
 const PHOTO_STORAGE = "photos";
 export default {
   data() {
     return {
+      outputs:[],
       component: "AddForm",
       etat: [],
       etats: [],
@@ -448,24 +447,63 @@ export default {
       return index;
     },
     async sharePhoto(){
-      html2pdf().from(document.getElementById('root')).toPdf().output('datauristring').then(function (pdfAsString) {
-        const base64Data = pdfAsString.split(',')[1];
+     
+
+    },
+    async sendEmail() {
+      //share url
+
+     /*await Share.share({
+      title: 'See cool stuff',
+      text: 'Really awesome thing you need to see right meow',
+      url: '/DATA/1627482003293.jpeg',
+      dialogTitle: 'Share with buddies',
+    });   */
+////////////////////////////////
+
+
+    // share photo prise ///////////////////  
+    /*const cameraPhoto = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
+      });
+    console.log(cameraPhoto)
+    await Share.share({
+      title : 'image',
+      url : cameraPhoto.path,
+    })*/
+/////////////////////////////
+
+    /*const cameraPhoto = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
+      });
+    console.log(cameraPhoto)*/
+    //var u = URL.createObjectURL(html2pdf().from(document.getElementById('root')));
+    var root = document.getElementById('root');
+    //var b64 = html2pdf().from(root).outputPdf('base64'); 
+    //console.log(await b64)
+
+    html2pdf().from(root).outputPdf().then(function(pdf) {
+    // This logs the right base64
+        const base64Data = btoa(pdf);
+        console.log(base64Data);
+
         FileSharer.share({
-          filename : 'test.pdf',
+          filename:'test.pdf',
           base64Data,
           contentType : 'application/pdf'
-        })
-      })
-    },
-    sendEmail() {
-      html2pdf().from(document.getElementById('root')).toPdf().output('datauristring').then(function (pdfAsString) {
-         shareTest.share({
-            title: 'See cool stuff',
-            url: pdfAsString,
-          });
-      })
-           
-      
+        });
+    });
+    //var u = URL.createObjectURL(await b64);
+    /*var test = {
+      webPath : u,
+      format : 'png'
+    }*/
+    //this.http.get('./assets/file.pdf', {responstType : 'blob'})
+    //html2pdf(root);
     },
     saveProprio() {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
