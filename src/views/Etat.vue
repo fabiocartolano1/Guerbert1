@@ -354,28 +354,23 @@
     <b-row class="no-print">
       
     </b-row>
+
     <form id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
+         string :  {{string64}}
+
       <input type="submit" value="Send" />
     </form>
+
+
   </div>
 </template>
 
 <script>
-import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Filesystem, Directory, } from "@capacitor/filesystem";
 import { Storage } from "@capacitor/storage";
-import { Share } from '@capacitor/share';
-//import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+import {PreviewAnyFile} from '@ionic-native/preview-any-file'
 import html2pdf from "html2pdf.js"
 
-
-import {
-    registerWebPlugin
-} from "@capacitor/core";
-import {
-    FileSharer
-} from '@byteowls/capacitor-filesharer';
-
-registerWebPlugin(FileSharer);
 const PHOTO_STORAGE = "photos";
 export default {
   data() {
@@ -388,22 +383,31 @@ export default {
       savedProprio: false,
       savedLoc: false,
       sortie: false,
+      string64 : 'no',
+      pdfsrc : '',
     };
   },
   computed: {
+    srcpdf : function(){
+      return "data:application/pdf;base64," + this.string64;
+    },
     photosEntree: function () {
       return this.photos.filter((photo) => {
-        return this.etat.Photos.includes(photo.filepath);
+        if(this.etat.Photos){
+          return this.etat.Photos.includes(photo.filepath);
+        }
+        
       });
     },
     photosSortie: function () {
       return this.photos.filter((photo) => {
-        return this.etat.PhotosSortie.includes(photo.filepath);
+        if(this.etat.PhotosSortie){
+          return this.etat.PhotosSortie.includes(photo.filepath);
+        }
       });
     },
   },
   mounted() {
-    console.log(Share);
     if (localStorage.getItem("etats")) {
       try {
         this.etats = JSON.parse(localStorage.getItem("etats"));
@@ -450,60 +454,14 @@ export default {
      
 
     },
-    async sendEmail() {
-      //share url
-
-     /*await Share.share({
-      title: 'See cool stuff',
-      text: 'Really awesome thing you need to see right meow',
-      url: '/DATA/1627482003293.jpeg',
-      dialogTitle: 'Share with buddies',
-    });   */
-////////////////////////////////
-
-
-    // share photo prise ///////////////////  
-    /*const cameraPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      });
-    console.log(cameraPhoto)
-    await Share.share({
-      title : 'image',
-      url : cameraPhoto.path,
-    })*/
-/////////////////////////////
-
-    /*const cameraPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      });
-    console.log(cameraPhoto)*/
-    //var u = URL.createObjectURL(html2pdf().from(document.getElementById('root')));
-    var root = document.getElementById('root');
-    //var b64 = html2pdf().from(root).outputPdf('base64'); 
-    //console.log(await b64)
-
-    html2pdf().from(root).outputPdf().then(function(pdf) {
-    // This logs the right base64
-        const base64Data = btoa(pdf);
-        console.log(base64Data);
-
-        FileSharer.share({
-          filename:'test.pdf',
-          base64Data,
-          contentType : 'application/pdf'
-        });
-    });
-    //var u = URL.createObjectURL(await b64);
-    /*var test = {
-      webPath : u,
-      format : 'png'
-    }*/
-    //this.http.get('./assets/file.pdf', {responstType : 'blob'})
-    //html2pdf(root);
+    async sendEmail() {    
+      var root = document.getElementById('root');  
+      var response = html2pdf().from(root).outputPdf();
+      var b64 =  btoa(await response);
+      console.log(b64);
+      PreviewAnyFile.previewBase64( win => console.log("open status",win),
+          error => console.error("open failed", error),
+          b64,{mimeType:'application/pdf'});  
     },
     saveProprio() {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
@@ -549,8 +507,8 @@ export default {
       const photosInStorage = [];
       JSON.parse(photoList.value).forEach((element) => {
         if (
-          this.etat.Photos.includes(element.filepath) ||
-          this.etat.PhotosSortie.includes(element.filepath)
+          this.etat.Photos && this.etat.Photos.includes(element.filepath) ||
+           this.etat.PhotosSortie && this.etat.PhotosSortie.includes(element.filepath)
         ) {
           photosInStorage.push(element);
         }
