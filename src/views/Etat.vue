@@ -145,7 +145,7 @@
       </b-row>
 
       <b-row class="equip">
-        <b-col class="casePiece">Equipment</b-col>
+        <b-col class="casePiece">Equipement</b-col>
         <b-col class="casePiece">Nature</b-col>
         <b-col class="casePiece">Etat</b-col>
         <b-col class="casePiece">Photo</b-col>
@@ -374,7 +374,7 @@ import { Storage } from "@capacitor/storage";
 var pdfMake = require('pdfmake/build/pdfmake.js');
 var pdfFonts = require('pdfmake/build/vfs_fonts.js')
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
-import {PreviewAnyFile} from '@ionic-native/preview-any-file'
+//import {PreviewAnyFile} from '@ionic-native/preview-any-file'
 //import html2pdf from "html2pdf.js"
 import { Printer } from '@ionic-native/printer';
 
@@ -419,6 +419,56 @@ export default {
         this.etats = JSON.parse(localStorage.getItem("etats"));
         this.etat = this.etats[this.$route.params.id];
         console.log(this.etat);
+
+        switch (this.etat.Bien.Type ){
+          case  'A':
+          this.etat.Bien.Type = "Appartement";
+          break;
+          case  'M':
+          this.etat.Bien.Type = "Maison";
+          break;
+          case  'S':
+          this.etat.Bien.Type = "Studio";
+          break;
+          case  'LC':
+          this.etat.Bien.Type = "Locaux Commerciaux";
+          break;
+          case  'B':
+          this.etat.Bien.Type = "Bureaux";
+          break;
+        }
+
+        switch (this.etat.Bien.TypeDeChauffage ){
+          case  'IG':
+          this.etat.Bien.TypeDeChauffage = "Chauffage individuel gaz";
+          break;
+          case  'CG':
+          this.etat.Bien.TypeDeChauffage = "Chauffage collectif gaz";
+          break;
+          case  'CF':
+          this.etat.Bien.TypeDeChauffage = "Chauffage collectif fuel";
+          break;
+          case  'E':
+          this.etat.Bien.TypeDeChauffage = "Chauffage électrique";
+          break;
+        }
+
+        switch (this.etat.Bien.EauChaude ){
+          case  'IG':
+          this.etat.Bien.EauChaude = "Chauffe eau individuel gaz";
+          break;
+          case  'CG':
+          this.etat.Bien.EauChaude = "Chauffe eau collectif gaz";
+          break;
+          case  'CF':
+          this.etat.Bien.EauChaude = "Chauffe eau collectif fuel";
+          break;
+          case  'E':
+          this.etat.Bien.EauChaude = "Chauffe eau électrique";
+          break;
+        }
+
+
       } catch (e) {
         console.log("error");
       }
@@ -484,26 +534,141 @@ export default {
       this.printing = false;
     },
     async envoyer() {  
-
+      console.log(this.etat);
+      var bien = this.etat.Bien;
       const docDefinition = {
-        watermark : { text : 'fabio academy', bold : true},
         content : [
           {
-            text : "ceci est un test"
+            text : 'Date : ' + this.etat.date.split(',')[0] ,
+            style : "date"
+          },
+          {
+            text : "Etat des lieux " + ((this.etat.selected == "entre") ? "d'entrée" : "de sortie") ,
+            style : "titre" 
+          },
+          {
+            text : "Dressé en commun et contradictoirement entre les soussignés" ,
+            style : "sousTitre" 
+          },
+          {
+            style : 'signatures',
+            table : {
+              heights : [80,20],
+              widths : [150,150,150],
+              body : [
+                [{border : [true,true,true,false],text : ''},{border : [true,true,true,false],text : ''},{border : [true,true,true,false],text : ''}],
+                [{border : [true,false,true,true],text : 'Ci-après le Propriétaire '},{border : [true,false,true,true],text : 'Ci-après le Mandataire'}, {border : [true,false,true,true],text :'Ci-après le(s) Locataire(s)'}]
+              ]
+            }
+          },
+          { style : 'bien',
+            table : {
+              widths : [113,113,113,113],
+              heights : [20,20,20,20,20,20],
+              body : [
+                [{text : 'Bien immobilier', colSpan : 4, style : 'tableHeader',fillColor : '#c7c7f7'},'','',''],
+                [{text : 'Adresse des lieux loués : ' + bien.Adresse, colSpan : 4},'','',''],
+                ['Type de bien :  ' + bien.Type,'reference :  '+ bien.REF,'LOT :  '+ bien.LOT,'BAL :  '+ bien.BAL],
+                ['Etage :  '+ bien.NbEtages,'Pieces :  '+ bien.NbPieces,{text : 'Surface :  '+ bien.Surface + ' m²', colSpan : 2} ,'' ],
+                [{text : 'Annexes loués avec :  '+ bien.annexes, colSpan : 4},'','',''],
+                [{text : 'Type de chauffage :  '+ bien.TypeDeChauffage, colSpan : 2},'',{text : 'Eau chaude :  '+ bien.EauChaude, colSpan : 2},''],
+              ]
+            }
           }
-        ]
+        ],
+        styles : {
+          titre: {
+            fontSize: 24,
+            bold: true,
+            alignment : 'center',
+            margin : [0,0,0,10]
+          },
+          sousTitre: {
+            fontSize: 12,
+            bold: false,
+            alignment : 'center'
+          },
+          date : {
+            fontSize : 12,
+            alignment : 'right'
+          },
+          signatures : {
+            alignment : 'right',
+            margin : [20,20,0,0]
+          },
+          bien : {
+            margin : [15,20,0,0]
+          },
+          tableHeader : {
+            bold : true
+          },
+          nomPiece : {
+            fontSize : 20,
+            margin : [0,20,10,0]
+          }
+        }
       }
-      for (let index = 0; index < 350; index++) {
-              docDefinition.content.push({text : index + "Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker."});
 
-        
+      if(this.etat.selected == "entre"){      
+        this.etat.Pieces.forEach(p => {
+          var titre = {
+            text : p.nom,
+            style : 'nomPiece'
+          }
+          var tableau = {
+            table : {
+              widths : [80,80,40,150,120],
+              body : [
+                [{text : 'Décoration',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Nature',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'État',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Photo',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Commentaires',  style : 'tableHeader',fillColor : '#c7c7f7'}]
+              ]
+            }
+          }
+
+          p.elDeco.forEach(el => {
+            tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
+          })
+
+          if(p.elElec){
+            tableau.table.body.push(
+               [{text : 'Électrique',  style : 'tableHeader',fillColor : '#ffe4e4'},
+                {text : 'Quantité',  style : 'tableHeader',fillColor : '#ffe4e4'},
+                {text : 'État',  style : 'tableHeader',fillColor : '#ffe4e4'},
+                {text : 'Photo',  style : 'tableHeader',fillColor : '#ffe4e4'},
+                {text : 'Commentaires',  style : 'tableHeader',fillColor : '#ffe4e4'}]
+            )
+            p.elElec.forEach(el => {
+            tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
+          })
+          }
+
+           if(p.elEquip){
+            tableau.table.body.push(
+               [{text : 'Équipement',  style : 'tableHeader',fillColor : '#dcfddc'},
+                {text : 'Marque',  style : 'tableHeader',fillColor : '#dcfddc'},
+                {text : 'État',  style : 'tableHeader',fillColor : '#dcfddc'},
+                {text : 'Photo',  style : 'tableHeader',fillColor : '#dcfddc'},
+                {text : 'Commentaires',  style : 'tableHeader',fillColor : '#dcfddc'}]
+            )
+            p.elEquip.forEach(el => {
+            tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
+          })
+          }
+
+          docDefinition.content.push(titre);
+          docDefinition.content.push(tableau);
+        });
       }
       this.pdfObj = pdfMake.createPdf(docDefinition);
-      this.pdfObj.getBase64(async (data) =>{
+      this.pdfObj.open();
+     /* this.pdfObj.getBase64(async (data) =>{
         PreviewAnyFile.previewBase64( win => console.log("open status",win),
           error => console.error("open failed", error),
           data,{mimeType:'application/pdf'}); 
-      });
+      });*/
       //try pdfmake
 
       //page blanche pue la merde
