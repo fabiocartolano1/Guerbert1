@@ -1,6 +1,6 @@
 <template>
   <div id="root">
-    <b-button class="no-print retourBtn" @click="$router.push('/')"
+    <b-button v-if="!printing" class="no-print retourBtn" @click="$router.push('/')"
       >Retour</b-button
     >
     <h5 v-if="etat.selected == 'entre'">
@@ -355,11 +355,14 @@
       
     </b-row>
 
-    <form id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
+    <form v-if="!printing" id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
          string :  {{string64}}
 
-      <input type="submit" value="Send" />
+      <input type="submit" value="Imprimer" />
     </form>
+    <b-button @click="envoyer">Envoyer</b-button>
+      <b-spinner v-if="printing" variant="guerb" type="grow" label="Spinning"></b-spinner>
+
 
 
   </div>
@@ -368,13 +371,19 @@
 <script>
 import { Filesystem, Directory, } from "@capacitor/filesystem";
 import { Storage } from "@capacitor/storage";
+var pdfMake = require('pdfmake/build/pdfmake.js');
+var pdfFonts = require('pdfmake/build/vfs_fonts.js')
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 import {PreviewAnyFile} from '@ionic-native/preview-any-file'
-import html2pdf from "html2pdf.js"
+//import html2pdf from "html2pdf.js"
+import { Printer } from '@ionic-native/printer';
+
 
 const PHOTO_STORAGE = "photos";
 export default {
   data() {
     return {
+      printing : false,
       outputs:[],
       component: "AddForm",
       etat: [],
@@ -383,14 +392,11 @@ export default {
       savedProprio: false,
       savedLoc: false,
       sortie: false,
-      string64 : 'no',
       pdfsrc : '',
+      pdfObj : null
     };
   },
   computed: {
-    srcpdf : function(){
-      return "data:application/pdf;base64," + this.string64;
-    },
     photosEntree: function () {
       return this.photos.filter((photo) => {
         if(this.etat.Photos){
@@ -454,14 +460,65 @@ export default {
      
 
     },
-    async sendEmail() {    
-      var root = document.getElementById('root');  
-      var response = html2pdf().from(root).outputPdf();
+    onSuccess(){
+      console.log("succes")
+    },
+    onError(){
+      console.log("error")
+    },
+    async sendEmail() {   
+      this.printing = true; 
+      Printer.print();
+
+     // Printer.print()
+      /*var root = document.getElementById('root');  
+      var response = html2pdf().set({
+        pagebreak: { mode: 'avoid-all', before: '#page2el' }
+      }).from(root).outputPdf();
       var b64 =  btoa(await response);
       console.log(b64);
       PreviewAnyFile.previewBase64( win => console.log("open status",win),
           error => console.error("open failed", error),
           b64,{mimeType:'application/pdf'});  
+          */
+      this.printing = false;
+    },
+    async envoyer() {  
+
+      const docDefinition = {
+        watermark : { text : 'fabio academy', bold : true},
+        content : [
+          {
+            text : "ceci est un test"
+          }
+        ]
+      }
+      for (let index = 0; index < 350; index++) {
+              docDefinition.content.push({text : index + "Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker."});
+
+        
+      }
+      this.pdfObj = pdfMake.createPdf(docDefinition);
+      this.pdfObj.getBase64(async (data) =>{
+        PreviewAnyFile.previewBase64( win => console.log("open status",win),
+          error => console.error("open failed", error),
+          data,{mimeType:'application/pdf'}); 
+      });
+      //try pdfmake
+
+      //page blanche pue la merde
+      /*this.printing = true; 
+      
+      var root = document.getElementById('root');  
+      var response = html2pdf().set({
+        pagebreak: { mode: 'avoid-all', before: '#page2el' }
+      }).from(root).outputPdf();
+      var b64 =  await btoa(await response);
+      PreviewAnyFile.previewBase64( win => console.log("open status",win),
+          error => console.error("open failed", error),
+          b64,{mimeType:'application/pdf'});  
+          
+      this.printing = false;*/
     },
     saveProprio() {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
