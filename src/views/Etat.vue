@@ -356,7 +356,6 @@
     </b-row>
 
     <form v-if="!printing" id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
-         string :  {{string64}}
 
       <input type="submit" value="Imprimer" />
     </form>
@@ -535,6 +534,7 @@ export default {
     },
     async envoyer() {  
       console.log(this.etat);
+      console.log(this.PhotosSorties);
       var bien = this.etat.Bien;
       const docDefinition = {
         content : [
@@ -551,20 +551,25 @@ export default {
             style : "sousTitre" 
           },
           {
-            style : 'signatures',
+            style : 'sign',
             table : {
               heights : [80,20],
               widths : [150,150,150],
+              
               body : [
-                [{border : [true,true,true,false],text : ''},{border : [true,true,true,false],text : ''},{border : [true,true,true,false],text : ''}],
-                [{border : [true,false,true,true],text : 'Ci-après le Propriétaire '},{border : [true,false,true,true],text : 'Ci-après le Mandataire'}, {border : [true,false,true,true],text :'Ci-après le(s) Locataire(s)'}]
+                [{border : [true,true,true,false],text : this.etat.Proprio.signataire + this.etat.Proprio.adresse , style : 'signataire'},
+                {border : [true,true,true,false],text : this.etat.Mandataire.signataire + this.etat.Mandataire.adresse,style : 'signataire'},
+                {border : [true,true,true,false],table : { body : []},style : 'signataire'}],
+                [{border : [true,false,true,true],text : 'Ci-après le Propriétaire ',style : 'signatures'},{border : [true,false,true,true],text : 'Ci-après le Mandataire',style : 'signatures'}, {border : [true,false,true,true],text :'Ci-après le(s) Locataire(s)',style : 'signatures'}]
               ]
             }
           },
           { style : 'bien',
+          pageBreak: 'after',
             table : {
               widths : [113,113,113,113],
               heights : [20,20,20,20,20,20],
+              
               body : [
                 [{text : 'Bien immobilier', colSpan : 4, style : 'tableHeader',fillColor : '#c7c7f7'},'','',''],
                 [{text : 'Adresse des lieux loués : ' + bien.Adresse, colSpan : 4},'','',''],
@@ -576,6 +581,10 @@ export default {
             }
           }
         ],
+         defaultStyle: {
+            fontSize: 10,
+            bold: false
+          },
         styles : {
           titre: {
             fontSize: 24,
@@ -583,10 +592,13 @@ export default {
             alignment : 'center',
             margin : [0,0,0,10]
           },
+          sign : {
+            margin : [18,30,0,20]
+          },
           sousTitre: {
             fontSize: 12,
             bold: false,
-            alignment : 'center'
+            alignment : 'center',
           },
           date : {
             fontSize : 12,
@@ -597,18 +609,42 @@ export default {
             margin : [20,20,0,0]
           },
           bien : {
-            margin : [15,20,0,0]
+            margin : [12,20,0,0]
           },
           tableHeader : {
             bold : true
           },
           nomPiece : {
             fontSize : 20,
-            margin : [0,20,10,0]
+            margin : [0,20,10,10]
+          },
+          signataire : {
+            alignment : 'center',
+            margin : [0,20,0,0]
+          },
+          
+          loc : {
+            alignment : 'center',
+            margin : [20,0,0,0]
+          },
+          sous : {
+            fontSize : 10,
+            margin : [0,30,0,30]
+          },
+          img : {
+            width : '100%'
           }
         }
       }
-
+      this.etat.Locataires.forEach(e=>{
+        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : e.signataire, style : 'loc' }]);
+        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : e.adresse , style : 'loc'}]);
+        
+        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
+        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
+        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
+      })
+     
       if(this.etat.selected == "entre"){      
         this.etat.Pieces.forEach(p => {
           var titre = {
@@ -661,6 +697,118 @@ export default {
           docDefinition.content.push(titre);
           docDefinition.content.push(tableau);
         });
+      }
+
+      var cpt = this.etat.Compteur;
+      var titreCompteur = {
+            text : 'Compteur',
+            style : 'nomPiece',
+            
+            pageBreak: 'before',
+          }
+      var compteur = {
+        table : { 
+          widths : [120,120,120,120],
+          body : [
+                [{text : 'Type de compteur',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Emplacement',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Date relevé',  style : 'tableHeader',fillColor : '#c7c7f7'},
+                {text : 'Index',  style : 'tableHeader',fillColor : '#c7c7f7'},
+              ],
+              ['Eau chaude',cpt.eauChaude.emplacement, cpt.eauChaude.date, cpt.eauChaude.index],
+              ['Eau Froide',cpt.eauFroide.emplacement,cpt.eauFroide.date,cpt.eauFroide.index],
+              ['Electrique heures pleines',cpt.elecHP.emplacement,cpt.elecHP.date,cpt.elecHP.index ],  
+              ['Electrique heures creuses',cpt.elecHC.emplacement,cpt.elecHC.date,cpt.elecHC.index ]
+          ]
+        }
+      }
+      docDefinition.content.push(titreCompteur);
+      docDefinition.content.push(compteur);
+
+      var sous = {
+        style : 'sous',
+        text : "Les soussignés reconnaissent exactes les constatations sur l'état du logement, sous réserve du bon fonctionnement des canalisations, appareils et installations santaires, électriques et du chauffage qui n'a pu être vérifié ce jour, toute défectuosité dans le tonctonnernent de ceux-ci devant être signalée dans le délai maximum de dix jours, et pendant le premier mois de la période de chauffe en ce qui concerne les éléments de chauffage. Les cosignataires aux présentes ont convenu du caractère probant et indiscutable des signatures y figurant pour être recueillies selon procédé informatique sécurisé au contradictoire des parties, ils s'accordent pour y faire référence lors du départ du locataire. Le présent état des lieux établi contradictoirement entre les parties qui le reconnaissent exact, fait partie intégrante du contrat de location dont il ne peut être dissocié."      }
+
+      docDefinition.content.push(sous);
+
+      var faita = {
+        text : 'Fait à Metz le ' + this.etat.date.split(',')[0]
+      }
+
+      docDefinition.content.push(faita);
+
+      if(this.etat.imgSignatureProprio && this.etat.imgSignatureLoc){
+
+      
+        var sign1 = {
+          style : 'signataire',
+          pageBreak : 'after',
+          table : {
+            widths : [250,250],
+            body : [
+              [
+                {
+                  image : this.etat.imgSignatureProprio,
+                  width : 200,
+                  border : [true,true,true,false]
+                },
+                {
+                  image : this.etat.imgSignatureLoc,
+                  width : 200,
+                  border : [true,true,true,false]
+                }
+              ],
+              [{ border : [true,false,true,true] , text : 'Signature du propriétaire ou de son mandataire'},
+              { border : [true,false,true,true] , text : 'Signature du ou des locataires'}]
+            ]
+          }
+          
+        } 
+        docDefinition.content.push(sign1);
+      }
+      if(this.etat.Photos){
+        var titrephotos = {
+          text : 'Photos',
+          style : 'nomPiece'
+        }
+        docDefinition.content.push(titrephotos)
+        var tablePhotos = {
+          table : {
+            widths : [250,250],
+            body : []
+          }
+        }
+        for (let index = 0; index < this.photosEntree.length; index++) {
+          console.log(index + '   ' + this.photosEntree.length)
+         tablePhotos.table.body.push([
+           {border : [false,false,false,false],
+             image : this.photosEntree[index].webviewPath,
+             width : 200
+           },
+            ((this.photosEntree[index+1]) ? {
+              border : [false,false,false,false],
+             image : this.photosEntree[index+1].webviewPath,
+             width : 200
+           } : {border : [false,false,false,false],text : ''} ),
+             
+           
+
+         ]);
+         tablePhotos.table.body.push([
+           {border : [false,false,false,false],
+             text : this.photosEntree[index].filepath,
+             width : 200
+           },
+            ((this.photosEntree[index+1]) ? {
+              border : [false,false,false,false],
+             text : this.photosEntree[index+1].filepath,
+             width : 200
+           } : {text : '',border : [false,false,false,false],} ),
+         ])
+         index ++;
+          
+        }
+        docDefinition.content.push(tablePhotos);
       }
       this.pdfObj = pdfMake.createPdf(docDefinition);
       this.pdfObj.open();
