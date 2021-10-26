@@ -355,10 +355,6 @@
       
     </b-row>
 
-    <form v-if="!printing" id="testEnvoi" class="contact-form" @submit.prevent="sendEmail">
-
-      <input type="submit" value="Imprimer" />
-    </form>
     <b-button @click="envoyer">Envoyer</b-button>
       <b-spinner v-if="printing" variant="guerb" type="grow" label="Spinning"></b-spinner>
 
@@ -375,7 +371,7 @@ var pdfFonts = require('pdfmake/build/vfs_fonts.js')
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 //import {PreviewAnyFile} from '@ionic-native/preview-any-file'
 //import html2pdf from "html2pdf.js"
-import { Printer } from '@ionic-native/printer';
+//import { Printer } from '@ionic-native/printer';
 
 
 const PHOTO_STORAGE = "photos";
@@ -466,6 +462,126 @@ export default {
           this.etat.Bien.EauChaude = "Chauffe eau électrique";
           break;
         }
+        
+        this.etat.Pieces.forEach(p => {
+          p.elDeco.forEach(el => {
+            switch(el.etat){
+              case 'BE' :
+                el.etat = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etat = "État d'usage"
+                break;
+              case 'D' : 
+                el.etat = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etat = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etat = "Mauvais état"
+                break;
+              
+            }
+            switch(el.etatSortie){
+              case 'BE' :
+                el.etatSortie = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etatSortie = "État d'usage"
+                break;
+              case 'D' : 
+                el.etatSortie = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etatSortie = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etatSortie = "Mauvais état"
+                break;
+              
+            }
+          })
+           p.elEquip.forEach(el => {
+            switch(el.etat){
+              case 'BE' :
+                el.etat = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etat = "État d'usage"
+                break;
+              case 'D' : 
+                el.etat = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etat = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etat = "Mauvais état"
+                break;
+              
+            }
+            switch(el.etatSortie){
+              case 'BE' :
+                el.etatSortie = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etatSortie = "État d'usage"
+                break;
+              case 'D' : 
+                el.etatSortie = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etatSortie = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etatSortie = "Mauvais état"
+                break;
+              
+            }
+          })
+        
+         p.elElec.forEach(el => {
+            switch(el.etat){
+              case 'BE' :
+                el.etat = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etat = "État d'usage"
+                break;
+              case 'D' : 
+                el.etat = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etat = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etat = "Mauvais état"
+                break;
+              
+            }
+            switch(el.etatSortie){
+              case 'BE' :
+                el.etatSortie = 'Bon état'
+                break;
+              case 'EU' : 
+                el.etatSortie = "État d'usage"
+                break;
+              case 'D' : 
+                el.etatSortie = 'Dégradé'
+                break;
+              case 'HS' :
+                el.etatSortie = 'Hors-service'
+                break;
+              case 'ME' :
+                el.etatSortie = "Mauvais état"
+                break;
+              
+            }
+          })
+        })
+      
+        
 
 
       } catch (e) {
@@ -515,24 +631,9 @@ export default {
     onError(){
       console.log("error")
     },
-    async sendEmail() {   
-      this.printing = true; 
-      Printer.print();
-
-     // Printer.print()
-      /*var root = document.getElementById('root');  
-      var response = html2pdf().set({
-        pagebreak: { mode: 'avoid-all', before: '#page2el' }
-      }).from(root).outputPdf();
-      var b64 =  btoa(await response);
-      console.log(b64);
-      PreviewAnyFile.previewBase64( win => console.log("open status",win),
-          error => console.error("open failed", error),
-          b64,{mimeType:'application/pdf'});  
-          */
-      this.printing = false;
-    },
+  
     async envoyer() {  
+      this.printing = true;
       console.log(this.etat);
       console.log(this.PhotosSorties);
       var bien = this.etat.Bien;
@@ -645,7 +746,7 @@ export default {
         docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
       })
      
-      if(this.etat.selected == "entre"){      
+      //if(this.etat.selected == "entre"){      
         this.etat.Pieces.forEach(p => {
           var titre = {
             text : p.nom,
@@ -653,7 +754,7 @@ export default {
           }
           var tableau = {
             table : {
-              widths : [80,80,40,150,120],
+              widths : [80,80,80,120,110],
               body : [
                 [{text : 'Décoration',  style : 'tableHeader',fillColor : '#c7c7f7'},
                 {text : 'Nature',  style : 'tableHeader',fillColor : '#c7c7f7'},
@@ -666,6 +767,9 @@ export default {
 
           p.elDeco.forEach(el => {
             tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
+            if(this.etat.selected == "sortie"){
+              tableau.table.body.push([{text:"Sortie",colSpan : 2},'',el.etatSortie,((el.photosSortie)? el.photosSortie : ''),((el.commentairesSortie)? el.commentairesSortie : '')])
+            }
           })
 
           if(p.elElec){
@@ -678,7 +782,10 @@ export default {
             )
             p.elElec.forEach(el => {
             tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
-          })
+            if(this.etat.selected == "sortie"){
+              tableau.table.body.push([{text:"Sortie",colSpan : 2},'',el.etatSortie,((el.photosSortie)? el.photosSortie : ''),((el.commentairesSortie)? el.commentairesSortie : '')])
+            }
+         })
           }
 
            if(p.elEquip){
@@ -691,13 +798,17 @@ export default {
             )
             p.elEquip.forEach(el => {
             tableau.table.body.push([el.nom,el.nature,el.etat,((el.photos)? el.photos : ''),((el.commentaires)? el.commentaires : '')])
+            if(this.etat.selected == "sortie"){
+              tableau.table.body.push([{text:"Sortie",colSpan : 2},'',el.etatSortie,((el.photosSortie)? el.photosSortie : ''),((el.commentairesSortie)? el.commentairesSortie : '')])
+            }
           })
           }
 
           docDefinition.content.push(titre);
           docDefinition.content.push(tableau);
+          
         });
-      }
+     // }
 
       var cpt = this.etat.Compteur;
       var titreCompteur = {
@@ -742,7 +853,6 @@ export default {
       
         var sign1 = {
           style : 'signataire',
-          pageBreak : 'after',
           table : {
             widths : [250,250],
             body : [
@@ -765,6 +875,35 @@ export default {
           
         } 
         docDefinition.content.push(sign1);
+      }
+      if(this.etat.imgSignatureProprioSortie && this.etat.imgSignatureLocSortie){
+
+      
+        var sign2 = {
+          style : 'signataire',
+          pageBreak : 'after',
+          table : {
+            widths : [250,250],
+            body : [
+              [
+                {
+                  image : this.etat.imgSignatureProprioSortie,
+                  width : 200,
+                  border : [true,true,true,false]
+                },
+                {
+                  image : this.etat.imgSignatureLocSortie,
+                  width : 200,
+                  border : [true,true,true,false]
+                }
+              ],
+              [{ border : [true,false,true,true] , text : 'Signature du propriétaire ou de son mandataire (Sortie)'},
+              { border : [true,false,true,true] , text : 'Signature du ou des locataires (Sortie)'}]
+            ]
+          }
+          
+        } 
+        docDefinition.content.push(sign2);
       }
       if(this.etat.Photos){
         var titrephotos = {
@@ -810,7 +949,53 @@ export default {
         }
         docDefinition.content.push(tablePhotos);
       }
+       if(this.photosSortie){
+        var titrephotos2 = {
+          pageBreak : 'before',
+          text : 'Photos Sortie',
+          style : 'nomPiece'
+        }
+        docDefinition.content.push(titrephotos2)
+        var tablePhotos2 = {
+          table : {
+            widths : [250,250],
+            body : []
+          }
+        }
+        for (let index = 0; index < this.photosSortie.length; index++) {
+          console.log(index + '   ' + this.photosSortie.length)
+         tablePhotos2.table.body.push([
+           {border : [false,false,false,false],
+             image : this.photosSortie[index].webviewPath,
+             width : 200
+           },
+            ((this.photosSortie[index+1]) ? {
+              border : [false,false,false,false],
+             image : this.photosSortie[index+1].webviewPath,
+             width : 200
+           } : {border : [false,false,false,false],text : ''} ),
+             
+           
+
+         ]);
+         tablePhotos2.table.body.push([
+           {border : [false,false,false,false],
+             text : this.photosSortie[index].filepath,
+             width : 200
+           },
+            ((this.photosSortie[index+1]) ? {
+              border : [false,false,false,false],
+             text : this.photosSortie[index+1].filepath,
+             width : 200
+           } : {text : '',border : [false,false,false,false],} ),
+         ])
+         index ++;
+          
+        }
+        docDefinition.content.push(tablePhotos2);
+      }
       this.pdfObj = pdfMake.createPdf(docDefinition);
+      this.printing = false;
       this.pdfObj.open();
      /* this.pdfObj.getBase64(async (data) =>{
         PreviewAnyFile.previewBase64( win => console.log("open status",win),
