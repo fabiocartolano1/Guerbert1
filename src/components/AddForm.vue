@@ -20,56 +20,6 @@
                     <h3 class="sousTitre">Soussignés</h3>
                 </b-col>
             </b-row>
-             <b-row class = "rowInner">
-                <b-col>
-                   
-                        <strong>Propriétaire</strong>
-                    
-                </b-col>
-                <b-col>
-                    <b-form-input 
-                        v-model="form.Proprio.societe" 
-                        placeholder="Société">
-                    </b-form-input>
-                </b-col>
-                <b-col>
-                    <b-form-input 
-                        v-model="form.Proprio.adresse" 
-                        placeholder="Adresse">
-                    </b-form-input>
-                </b-col>
-                <b-col>
-                   <b-form-input 
-                        v-model="form.Proprio.signataire" 
-                        placeholder="Signataire">
-                    </b-form-input>
-                </b-col>
-            </b-row>
-            <b-row class = "rowInner">
-                <b-col>
-                   
-                        <strong>Mandataire</strong>
-                    
-                </b-col>
-                <b-col>
-                    <b-form-input 
-                        v-model="form.Mandataire.societe" 
-                        placeholder="Société">
-                    </b-form-input>
-                </b-col>
-                <b-col>
-                    <b-form-input 
-                        v-model="form.Mandataire.adresse" 
-                        placeholder="Adresse">
-                    </b-form-input>
-                </b-col>
-                <b-col>
-                   <b-form-input 
-                        v-model="form.Mandataire.signataire" 
-                        placeholder="Signataire">
-                    </b-form-input>
-                </b-col>
-            </b-row>
             <div>
                 <b-row class = "rowInner" v-for="(locataire,n) in form.Locataires" :key="locataire.id">
                     <b-col>
@@ -153,7 +103,7 @@
                 <b-col>
                        <b-form-input 
                         v-model="form.Bien.NbEtages" 
-                        placeholder="Nombre d'étages'">
+                        placeholder="Etage'">
                     </b-form-input>
                 </b-col>
                 <b-col>

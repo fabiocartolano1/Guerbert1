@@ -98,7 +98,7 @@
           </b-col>
           <b-col class="casePiece">{{ el.commentaires }}</b-col>
         </b-row>
-        <b-row>
+        <b-row v-if="etat.selected == 'sortie'">
           <b-col class="casePieceRetour"></b-col>
           <b-col class="casePieceRetour">Sortie : </b-col>
           <b-col class="casePiece">
@@ -125,24 +125,44 @@
         <b-col class="casePiece">Photo</b-col>
         <b-col class="casePiece">Commentaires</b-col>
       </b-row>
-      <b-row v-for="el in piece.elElec" :key="el.id">
-        <b-col class="casePiece">{{ el.nom }}</b-col>
-        <b-col class="casePiece">{{ el.nature }}</b-col>
-        <b-col class="casePiece">
-          <span v-if="el.etat == 'HS'">Hors-Service</span>
-          <span v-if="el.etat == 'D'">Dégradé</span>
-          <span v-if="el.etat == 'ME'">Mauvais état</span>
-          <span v-if="el.etat == 'EU'">Etat d'usage</span>
-          <span v-if="el.etat == 'BE'">Bon état</span>
-        </b-col>
-        <b-col class="casePiece"
-          ><span v-for="(p, i) in el.photos" :key="p.id">
-            <span v-if="i != 0">, </span>
-            Image {{ getIndex(p) + 1 }}
-          </span>
-        </b-col>
-        <b-col class="casePiece">{{ el.commentaires }}</b-col>
-      </b-row>
+      <div v-for="el in piece.elElec" :key="el.id">
+        <b-row >
+          <b-col class="casePiece">{{ el.nom }}</b-col>
+          <b-col class="casePiece">{{ el.nature }}</b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etat == 'HS'">Hors-Service</span>
+            <span v-if="el.etat == 'D'">Dégradé</span>
+            <span v-if="el.etat == 'ME'">Mauvais état</span>
+            <span v-if="el.etat == 'EU'">Etat d'usage</span>
+            <span v-if="el.etat == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece"
+            ><span v-for="(p, i) in el.photos" :key="p.id">
+              <span v-if="i != 0">, </span>
+              Image {{ getIndex(p) + 1 }}
+            </span>
+          </b-col>
+          <b-col class="casePiece">{{ el.commentaires }}</b-col>
+        </b-row>
+        <b-row v-if="etat.selected == 'sortie'">
+          <b-col class="casePieceRetour"></b-col>
+          <b-col class="casePieceRetour">Sortie : </b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etatSortie == 'HS'">Hors-Service</span>
+            <span v-if="el.etatSortie == 'D'">Dégradé</span>
+            <span v-if="el.etatSortie == 'ME'">Mauvais état</span>
+            <span v-if="el.etatSortie == 'EU'">Etat d'usage</span>
+            <span v-if="el.etatSortie == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece"
+            ><span v-for="(p, i) in el.photosSortie" :key="p.id">
+              <span v-if="i != 0">, </span>
+              Image {{ getIndexSortie(p) + 1 }}B
+            </span>
+          </b-col>
+          <b-col class="casePiece">{{ el.commentairesSortie }}</b-col>
+        </b-row>
+      </div>
 
       <b-row class="equip">
         <b-col class="casePiece">Equipement</b-col>
@@ -151,24 +171,45 @@
         <b-col class="casePiece">Photo</b-col>
         <b-col class="casePiece">Commentaires</b-col>
       </b-row>
-      <b-row v-for="el in piece.elEquip" :key="el.id">
-        <b-col class="casePiece">{{ el.nom }}</b-col>
-        <b-col class="casePiece">{{ el.nature }}</b-col>
-        <b-col class="casePiece">
-          <span v-if="el.etat == 'HS'">Hors-Service</span>
-          <span v-if="el.etat == 'D'">Dégradé</span>
-          <span v-if="el.etat == 'ME'">Mauvais état</span>
-          <span v-if="el.etat == 'EU'">Etat d'usage</span>
-          <span v-if="el.etat == 'BE'">Bon état</span>
-        </b-col>
-        <b-col class="casePiece">
-          <span v-for="(p, i) in el.photos" :key="p.id">
-            <span v-if="i != 0">, </span>
-            Image {{ getIndex(p) + 1 }}
-          </span>
-        </b-col>
-        <b-col class="casePiece">{{ el.commentaires }}</b-col>
-      </b-row>
+      <div v-for="el in piece.elEquip" :key="el.id">
+        <b-row >
+          <b-col class="casePiece">{{ el.nom }}</b-col>
+          <b-col class="casePiece">{{ el.nature }}</b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etat == 'HS'">Hors-Service</span>
+            <span v-if="el.etat == 'D'">Dégradé</span>
+            <span v-if="el.etat == 'ME'">Mauvais état</span>
+            <span v-if="el.etat == 'EU'">Etat d'usage</span>
+            <span v-if="el.etat == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece">
+            <span v-for="(p, i) in el.photos" :key="p.id">
+              <span v-if="i != 0">, </span>
+              Image {{ getIndex(p) + 1 }}
+            </span>
+          </b-col>
+          <b-col class="casePiece">{{ el.commentaires }}</b-col>
+        </b-row>
+        <b-row v-if="etat.selected == 'sortie'">
+          <b-col class="casePieceRetour"></b-col>
+          <b-col class="casePieceRetour">Sortie : </b-col>
+          <b-col class="casePiece">
+            <span v-if="el.etatSortie == 'HS'">Hors-Service</span>
+            <span v-if="el.etatSortie == 'D'">Dégradé</span>
+            <span v-if="el.etatSortie == 'ME'">Mauvais état</span>
+            <span v-if="el.etatSortie == 'EU'">Etat d'usage</span>
+            <span v-if="el.etatSortie == 'BE'">Bon état</span>
+          </b-col>
+          <b-col class="casePiece"
+            ><span v-for="(p, i) in el.photosSortie" :key="p.id">
+              <span v-if="i != 0">, </span>
+              Image {{ getIndexSortie(p) + 1 }}B
+            </span>
+          </b-col>
+          <b-col class="casePiece">{{ el.commentairesSortie }}</b-col>
+        </b-row>
+
+      </div>
     </div>
     <div class="pagebreak"></div>
     <div class="cle">
@@ -369,7 +410,7 @@ import { Storage } from "@capacitor/storage";
 var pdfMake = require('pdfmake/build/pdfmake.js');
 var pdfFonts = require('pdfmake/build/vfs_fonts.js')
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
-//import {PreviewAnyFile} from '@ionic-native/preview-any-file'
+import {PreviewAnyFile} from '@ionic-native/preview-any-file'
 //import html2pdf from "html2pdf.js"
 //import { Printer } from '@ionic-native/printer';
 
@@ -591,7 +632,6 @@ export default {
     this.loadSaved();
     if (this.etat.selected == "sortie") {
       this.sortie = true;
-      console.log(this.sortie);
     }
   },
   methods: {
@@ -602,9 +642,7 @@ export default {
     getIndex(p) {
       let index = "error";
       this.etat.Photos.forEach((photo, i) => {
-        console.log(p + " = " + photo);
         if (photo == p) {
-          console.log(i);
           index = i;
         }
       });
@@ -613,9 +651,7 @@ export default {
     getIndexSortie(p) {
       let index = "error";
       this.etat.PhotosSortie.forEach((photo, i) => {
-        console.log(p + " = " + photo);
         if (photo == p) {
-          console.log(i);
           index = i;
         }
       });
@@ -634,8 +670,6 @@ export default {
   
     async envoyer() {  
       this.printing = true;
-      console.log(this.etat);
-      console.log(this.PhotosSorties);
       var bien = this.etat.Bien;
       const docDefinition = {
         content : [
@@ -655,13 +689,14 @@ export default {
             style : 'sign',
             table : {
               heights : [80,20],
-              widths : [150,150,150],
+              widths : [200,200],
               
               body : [
-                [{border : [true,true,true,false],text : this.etat.Proprio.signataire + this.etat.Proprio.adresse , style : 'signataire'},
-                {border : [true,true,true,false],text : this.etat.Mandataire.signataire + this.etat.Mandataire.adresse,style : 'signataire'},
+                [{border : [true,true,true,false],table : { body : [[{border : [false,false,false,false],text :'Cabinet Guerbert Philippe', style : 'loc'}],[{border : [false,false,false,false],text : '1 rue des clercs', style : 'loc'}],[ {border : [false,false,false,false],text :'57000 METZ', style : 'loc'}]]},style : 'signataire'},
                 {border : [true,true,true,false],table : { body : []},style : 'signataire'}],
-                [{border : [true,false,true,true],text : 'Ci-après le Propriétaire ',style : 'signatures'},{border : [true,false,true,true],text : 'Ci-après le Mandataire',style : 'signatures'}, {border : [true,false,true,true],text :'Ci-après le(s) Locataire(s)',style : 'signatures'}]
+                [
+                {border : [true,false,true,true],text : 'Ci-après le Mandataire',style : 'signatures'},
+                 {border : [true,false,true,true],text :'Ci-après le(s) Locataire(s)',style : 'signatures'}]
               ]
             }
           },
@@ -694,7 +729,7 @@ export default {
             margin : [0,0,0,10]
           },
           sign : {
-            margin : [18,30,0,20]
+            margin : [50,30,0,20]
           },
           sousTitre: {
             fontSize: 12,
@@ -702,7 +737,7 @@ export default {
             alignment : 'center',
           },
           date : {
-            fontSize : 12,
+            fontSize : 8,
             alignment : 'right'
           },
           signatures : {
@@ -738,12 +773,12 @@ export default {
         }
       }
       this.etat.Locataires.forEach(e=>{
-        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : e.signataire, style : 'loc' }]);
-        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : e.adresse , style : 'loc'}]);
+        docDefinition.content[3].table.body[0][1].table.body.push([{border : [false,false,false,false],text : e.signataire, style : 'loc' }]);
+        docDefinition.content[3].table.body[0][1].table.body.push([{border : [false,false,false,false],text : e.adresse , style : 'loc'}]);
         
-        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
-        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
-        docDefinition.content[3].table.body[0][2].table.body.push([{border : [false,false,false,false],text : ''}]);
+        docDefinition.content[3].table.body[0][1].table.body.push([{border : [false,false,false,false],text : ''}]);
+        docDefinition.content[3].table.body[0][1].table.body.push([{border : [false,false,false,false],text : ''}]);
+        docDefinition.content[3].table.body[0][1].table.body.push([{border : [false,false,false,false],text : ''}]);
       })
      
       //if(this.etat.selected == "entre"){      
@@ -905,7 +940,7 @@ export default {
         } 
         docDefinition.content.push(sign2);
       }
-      if(this.etat.Photos){
+      if(this.photosEntree.length>=1){
         var titrephotos = {
           text : 'Photos',
           style : 'nomPiece'
@@ -918,7 +953,6 @@ export default {
           }
         }
         for (let index = 0; index < this.photosEntree.length; index++) {
-          console.log(index + '   ' + this.photosEntree.length)
          tablePhotos.table.body.push([
            {border : [false,false,false,false],
              image : this.photosEntree[index].webviewPath,
@@ -949,7 +983,7 @@ export default {
         }
         docDefinition.content.push(tablePhotos);
       }
-       if(this.photosSortie){
+       if(this.photosSortie.length>=1){
         var titrephotos2 = {
           pageBreak : 'before',
           text : 'Photos Sortie',
@@ -963,7 +997,6 @@ export default {
           }
         }
         for (let index = 0; index < this.photosSortie.length; index++) {
-          console.log(index + '   ' + this.photosSortie.length)
          tablePhotos2.table.body.push([
            {border : [false,false,false,false],
              image : this.photosSortie[index].webviewPath,
@@ -996,12 +1029,12 @@ export default {
       }
       this.pdfObj = pdfMake.createPdf(docDefinition);
       this.printing = false;
-      this.pdfObj.open();
-     /* this.pdfObj.getBase64(async (data) =>{
+      //this.pdfObj.open();
+     this.pdfObj.getBase64(async (data) =>{
         PreviewAnyFile.previewBase64( win => console.log("open status",win),
           error => console.error("open failed", error),
           data,{mimeType:'application/pdf'}); 
-      });*/
+      });
       //try pdfmake
 
       //page blanche pue la merde
@@ -1027,7 +1060,6 @@ export default {
         this.etats.forEach((e, index) => {
           if (index == this.$route.params.id) {
             this.etats[index] = this.etat;
-            console.log(e);
             const parsedEtats = JSON.stringify(this.etats);
             localStorage.setItem("etats", parsedEtats);
           }
@@ -1068,7 +1100,6 @@ export default {
           photosInStorage.push(element);
         }
       });
-      console.log(photosInStorage);
       for (const photo of photosInStorage) {
         const file = await Filesystem.readFile({
           path: photo.filepath,

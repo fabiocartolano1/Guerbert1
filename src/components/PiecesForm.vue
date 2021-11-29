@@ -430,6 +430,9 @@ export default {
           { id: this.ID(), nom: "Porte", nature: "", etat: "", photos: [] },
           { id: this.ID(), nom: "Murs", nature: "", etat: "", photos: [] },
           { id: this.ID(), nom: "Sols", nature: "", etat: "", photos: [] },
+          { id : this.ID(), nom : "Plafonds", nature : "", etat : "", photos : []},
+          { id : this.ID(), nom : "Fenêtres", nature : "", etat : "", photos : []},
+          { id : this.ID(), nom : "Volets", nature : "", etat : "", photos : []}
         ],
         elEquip: [],
         elElec: [
@@ -450,13 +453,6 @@ export default {
         p.elEquip.push({
           id: this.ID(),
           nom: "Placards",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
-          nom: "Volets",
           nature: "",
           etat: "",
           photos: [],
@@ -500,13 +496,6 @@ export default {
         });
         p.elEquip.push({
           id: this.ID(),
-          nom: "Volets",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
           nom: "Armoire",
           nature: "",
           etat: "",
@@ -538,13 +527,6 @@ export default {
         p.elEquip.push({
           id: this.ID(),
           nom: "Baignoire",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
-          nom: "Volets",
           nature: "",
           etat: "",
           photos: [],
@@ -603,13 +585,6 @@ export default {
         });
         p.elEquip.push({
           id: this.ID(),
-          nom: "Volets",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
           nom: "Réservoir",
           nature: "",
           etat: "",
@@ -641,13 +616,6 @@ export default {
         p.elEquip.push({
           id: this.ID(),
           nom: "Meuble haut",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
-          nom: "Volets",
           nature: "",
           etat: "",
           photos: [],
@@ -713,13 +681,6 @@ export default {
         p.elEquip.push({
           id: this.ID(),
           nom: "Interphone",
-          nature: "",
-          etat: "",
-          photos: [],
-        });
-        p.elEquip.push({
-          id: this.ID(),
-          nom: "Volets",
           nature: "",
           etat: "",
           photos: [],

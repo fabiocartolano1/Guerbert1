@@ -367,7 +367,6 @@
     </div>
     <b-row class="no-print">
       <b-col>
-        <b-button @click="imprimer"> Imprimer </b-button>
         <b-button variant="guerb" @click="onSubmit"> Valider </b-button>
       </b-col>
     </b-row>
@@ -539,9 +538,6 @@ export default {
         }
       });
       return index;
-    },
-    imprimer() {
-      window.print();
     },
   saveProprio() { 
     const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
